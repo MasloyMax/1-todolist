@@ -1,97 +1,74 @@
-import React, {useState} from "react";
+import React, {ChangeEvent, useState, KeyboardEvent} from 'react';
+import {FilterValuesType} from "../App";
 
-// type TodoListPropsType = {
-//     title?: string
-//     tasks: Array<TaskType>
-//     removeTask: (taskId: number) => void
-//     changeFilter: (filter:FilterValuesType) => void
-//     changeAllRemove:(remove:DeleteButtonType) => void
-// }
+type TodoListPropsType = {
+    title: string
+    tasks: Array<TaskType>
+    remove: (taskId: string) => void
+    changeFilter: (filter: FilterValuesType) => void
+    addTask: (value: string) => void
+    allRemoveTask: () => void
+}
 
 export type TaskType = {
-    id: number
+    id: string
     title: string
     isDone: boolean
 }
-export type FilterValuesType = 'all' | 'active' | 'completed' | 'three'
-// export type DeleteButtonType = 'delete'| []
 
-const TodoList = () => {
-    const todoListTitle: string = 'What to learn'
-    let [tasks, setTasks] = useState([
-        {id: 1, title: "HTML & CSS", isDone: true},
-        {id: 2, title: "JAVASCRIPT AND TYPESCRIPT", isDone: true},
-        {id: 4, title: "REACT", isDone: false},
-        {id: 5, title: "REACT", isDone: false},
-        {id: 6, title: "REACT", isDone: false},
-        {id: 7, title: "REACT", isDone: false},
-        {id: 8, title: "REACT", isDone: false},
-        {id: 9, title: "REACT", isDone: false},
-        {id: 10, title: "REACT", isDone: false}
-    ])
+const TodoList = (props: TodoListPropsType) => {
+    const tasksItems = props.tasks.length
+        ? props.tasks.map((task: TaskType) => {
+            const onClickRemoveTaskHandler = () => {
+                props.remove(task.id)
+            }
+            return (<li key={task.id}>
+                <input type="checkbox" checked={task.isDone}/>
+                <span>{task.title}</span>
+                <button onClick={onClickRemoveTaskHandler}>x</button>
+            </li>)
+        })
+        : <span>Tasks list is empty</span>
 
-    const removeTask = (id?: number) => {
-        setTasks(id ? tasks.filter((t) => t.id !== id) : [])// если id true(?) то закидываем таски если false(:) то пустой массив
+    const [value, setValue] = useState<string>('')
+
+    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue(e.currentTarget.value)
+    }
+    const addTaskHandler = () => {
+        props.addTask(value);
+        setValue('')
+    }
+    const opnKeuDownAddTaskHandler = (e: KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && addTaskHandler()
+
+    const getOnClickSetFilterHandler = (filter: FilterValuesType) => () => props.changeFilter(filter)
+
+    const allRemoveTaskHandler = () => {
+      props.allRemoveTask()
     }
 
-    let [filter, setFilter] = useState<FilterValuesType>('all')
-
-
-    const filterButton = () => {
-        switch (filter) {
-            case 'active':
-                return tasks.filter((t) => t.isDone === true)
-            case 'completed':
-                return tasks.filter((t) => t.isDone === false)
-            case 'three':
-                return tasks.slice(0, 3)
-            default:
-                return tasks
-        }
-    }
-
-    const filteredTasks: Array<TaskType> = filterButton()
-
-
-    const changeFilter = (filter: FilterValuesType) => {
-        setFilter(filter)
-    }
-
-    // const changeAllRemove = (remove:DeleteButtonType) => {
-    //     if(remove === 'delete'){
-    //         return setTasks([])
-    //     }
-    // }
-
-    let newTask = filteredTasks.length
-        ? filteredTasks.map((t: TaskType) => {
-            return <li key={t.id}>
-                <input type="checkbox" checked={t.isDone}/>
-                <span>{t.title}</span>
-                <button onClick={() => removeTask(t.id)}>x</button>
-            </li>
-        }) : <span>Loading</span>
     return (
         <div>
-            <h3>{todoListTitle}</h3>
+            <h3>{props.title}</h3>
             <div>
-                <input/>
-                <button>+</button>
+                <input value={value}
+                       onChange={onChangeHandler}
+                       onKeyDown={opnKeuDownAddTaskHandler}
+                />
+                <button onClick={addTaskHandler}>+
+                </button>
             </div>
             <ul>
-                {newTask}
+                {tasksItems}
             </ul>
             <div>
-                <button onClick={() => removeTask()}>All remove</button>
-            </div>
-            <div>
-                <button onClick={() => changeFilter('all')}>All</button>
-                <button onClick={() => changeFilter('active')}>Active</button>
-                <button onClick={() => changeFilter('completed')}>Completed</button>
-                <button onClick={() => changeFilter('three')}>three</button>
+                <button onClick={getOnClickSetFilterHandler('all')}>All</button>
+                <button onClick={getOnClickSetFilterHandler('active')}>Active</button>
+                <button onClick={getOnClickSetFilterHandler('completed')}>Completed</button>
+                <button onClick={allRemoveTaskHandler}>All Remove</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default TodoList
+export default TodoList;
