@@ -21,17 +21,14 @@ function App() {
         setTasks([newTask,...tasks])
     }
 
-    const removeTask = (taskId: string) => {
-        setTasks(tasks.filter(t => t.id !== taskId))
-    }
+    const removeTask = (taskId: string) => setTasks(tasks.filter(t => t.id !== taskId))
 
-    const allRemoveTask = () => {
-      setTasks([])
-    }
 
-    const changeFilter = (filter: FilterValuesType) => {
-        setFilter(filter)
-    }
+    const allRemoveTask = () => setTasks([])
+
+
+    const changeFilter = (filter: FilterValuesType) => setFilter(filter)
+
 
     useEffect( ()=>{console.log(tasks)},[tasks])
 
