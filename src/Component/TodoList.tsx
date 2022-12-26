@@ -9,6 +9,8 @@ type TodoListPropsType = {
     changeFilter: (filter: FilterValuesType) => void
     addTask: (value: string) => void
     allRemoveTask: () => void
+    changeStatus: (taskId: string, isDone: boolean) => void
+    filter: FilterValuesType
 }
 
 export type TaskType = {
@@ -18,30 +20,57 @@ export type TaskType = {
 }
 
 const TodoList = (props: TodoListPropsType) => {
-    const {tasks,remove,changeFilter,addTask,allRemoveTask,title} = props
+    const {
+        filter,
+        tasks,
+        title,
+        remove,
+        changeFilter,
+        addTask,
+        allRemoveTask,
+        changeStatus
+    } = props
 
     const [value, setValue] = useState<string>('')
+    const [error, setError] = useState<string | null>(null)
 
     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => setValue(e.currentTarget.value)
 
     const addTaskHandler = () => {
-        addTask(value);
-        setValue('')
+        if (value.trim() !== '') {
+            addTask(value.trim());
+            setValue('')
+        } else {
+            setError('title is required')
+        }
     }
-    const opnKeuDownAddTaskHandler = (e: KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && addTaskHandler()
+    const opnKeuDownAddTaskHandler = (e: KeyboardEvent<HTMLInputElement>) => {
+        error && setError('')
+        e.key === 'Enter' && addTaskHandler()
+    }
 
     const getOnClickSetFilterHandler = (filter: FilterValuesType) => () => changeFilter(filter)
 
     const allRemoveTaskHandler = () => allRemoveTask()
 
-    const onClickRemoveTask = (tId:string) => remove(tId)
+    const onClickRemoveTask = (tId: string) => () => remove(tId)
+
+    const classInput = error ? 'error' : ''
+    const errorMessage = error && <div className='error-message'>{error}</div>
 
     const tasksItems = tasks.length
         ? tasks.map((task: TaskType) => {
+
+            const onChangeStatusHandler = (e: ChangeEvent<HTMLInputElement>) => changeStatus(task.id, e.currentTarget.checked)
+
             return (<li key={task.id}>
-                <input type="checkbox" checked={task.isDone}/>
+                <input onChange={onChangeStatusHandler}
+                       type="checkbox"
+                       checked={task.isDone}
+                />
                 <span>{task.title}</span>
-                <Button name={"X"} callBack={()=>onClickRemoveTask(task.id)}/>
+                <Button filter={filter} name={"X"} callBack={onClickRemoveTask(task.id)}/>
+
             </li>)
         })
         : <span>Tasks list is empty</span>
@@ -53,17 +82,19 @@ const TodoList = (props: TodoListPropsType) => {
                 <input value={value}
                        onChange={onChangeHandler}
                        onKeyDown={opnKeuDownAddTaskHandler}
+                       className={classInput}
                 />
-                <Button name={'+'} callBack={addTaskHandler}/>
+                <Button filter={filter} name={'+'} callBack={addTaskHandler}/>
+                {errorMessage}
             </div>
             <ul>
                 {tasksItems}
             </ul>
             <div>
-                <Button name={'All'} callBack={getOnClickSetFilterHandler('all')}/>
-                <Button name={'Active'} callBack={getOnClickSetFilterHandler('active')}/>
-                <Button name={'Completed'} callBack={getOnClickSetFilterHandler('completed')}/>
-                <Button name={'All Remove'} callBack={allRemoveTaskHandler}/>
+                <Button filter={filter} name={'all'} callBack={getOnClickSetFilterHandler('all')}/>
+                <Button filter={filter} name={'active'} callBack={getOnClickSetFilterHandler('active')}/>
+                <Button filter={filter} name={'completed'} callBack={getOnClickSetFilterHandler('completed')}/>
+                <Button filter={filter} name={'allRemove'} callBack={allRemoveTaskHandler}/>
             </div>
         </div>
     );

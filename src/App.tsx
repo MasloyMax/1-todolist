@@ -12,30 +12,30 @@ function App() {
         {id: v1(), title: "HTML & CSS", isDone: true},
         {id: v1(), title: "ES6 & TS", isDone: true},
         {id: v1(), title: "REACT", isDone: false},
+        {id: v1(), title: "Angular", isDone: false},
+        {id: v1(), title: "PreProc-scss", isDone: false},
+        {id: v1(), title: "webpack", isDone: false},
+        {id: v1(), title: "ReactNative", isDone: false},
+        {id: v1(), title: "OpenShift", isDone: false},
     ])
 
-    const [filter, setFilter] = useState<FilterValuesType> ("all")
+    const [filter, setFilter] = useState<FilterValuesType>("all")
 
-    const addTask = (value:string) => {
-      let newTask = {id: v1(), title: value, isDone: false}
-        setTasks([newTask,...tasks])
+    const addTask = (value: string) => {
+        let newTask = {id: v1(), title: value, isDone: false}
+        setTasks([newTask, ...tasks])
     }
 
     const removeTask = (taskId: string) => setTasks(tasks.filter(t => t.id !== taskId))
 
-
     const allRemoveTask = () => setTasks([])
 
-
     const changeFilter = (filter: FilterValuesType) => setFilter(filter)
-
-
-    useEffect( ()=>{console.log(tasks)},[tasks])
 
     const getFilteredTasksForRender = () => {
         switch (filter) {
             case "active":
-                return tasks.filter(t => t.isDone === false)
+                return tasks.filter(t => !t.isDone)
             case "completed":
                 return tasks.filter(t => t.isDone === true)
             default:
@@ -45,14 +45,26 @@ function App() {
 
     const filteredTasksForRender: Array<TaskType> = getFilteredTasksForRender()
 
+    const changeStatus = (taskId: string, isDone: boolean) => {
+        setTasks(tasks.map(t => t.id === taskId ? {...t, isDone: isDone}: t))//++
+        // let task = tasks.find(t => t.id === taskId)
+        // if(task){
+        //     task.isDone = isDone
+        // }
+        // setTasks([...tasks])
+    }
+
     return (
         <div className="App">
-                <TodoList title={todoListTitle}
-                          tasks={filteredTasksForRender}
-                          remove={removeTask}
-                          changeFilter={changeFilter}
-                          addTask={addTask}
-                          allRemoveTask={allRemoveTask}/>
+            <TodoList title={todoListTitle}
+                      tasks={filteredTasksForRender}
+                      remove={removeTask}
+                      changeFilter={changeFilter}
+                      addTask={addTask}
+                      allRemoveTask={allRemoveTask}
+                      changeStatus={changeStatus}
+                      filter={filter}
+            />
         </div>
     );
 }

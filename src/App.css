@@ -6,3 +6,22 @@
 .App > div {
   margin-right: 50px;
 }
+
+.error {
+  border: red 1px solid;
+  outline-color: red;
+}
+
+.error-message{
+  color: red;
+}
+
+.button_active{
+  background: #ccddee;
+  margin-right: 5px;
+}
+
+.button{
+  margin-right: 5px;
+  cursor: pointer;
+}
